@@ -22,25 +22,25 @@ services:
     networks:
       - spos
 
-  spos-nginx:
-    image: nginx:latest
-    restart: always
-    volumes:
-      - ./spos-nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./spos-nginx/error_log.log:/etc/nginx/error_log.log
-      - ./spos-nginx/cache/:/etc/nginx/cache
-    env_file:
-      - ./spos-nginx/nginx.env
-    ports:
-      - '80:80'
-      - '443:443'
-    expose:
-      - '80'
-      - '443'
-    hostname: spos-nginx
-    container_name: spos-nginx
-    networks:
-      - spos
+#  spos-nginx:
+#    image: nginx:latest
+#    restart: always
+#    volumes:
+#      - ./spos-nginx/nginx.conf:/etc/nginx/nginx.conf
+#      - ./spos-nginx/error_log.log:/etc/nginx/error_log.log
+#      - ./spos-nginx/cache/:/etc/nginx/cache
+#    env_file:
+#      - ./spos-nginx/nginx.env
+#    ports:
+#      - '80:80'
+#      - '443:443'
+#    expose:
+#      - '80'
+#      - '443'
+#    hostname: spos-nginx
+#    container_name: spos-nginx
+#    networks:
+#      - spos
 
 
   spos-mssql:
