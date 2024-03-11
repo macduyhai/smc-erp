@@ -1,0 +1,189 @@
+version: '3.5'
+
+# Infrastructure services
+services:
+  spos-mysql:
+    image: mysql:latest
+    restart: always
+    cap_add:
+      - ALL
+    volumes:
+      - ./spos-mysql/data:/var/lib/mysql
+      - ./spos-mysql/conf.d:/etc/mysql/conf.d
+      - ./spos-mysql/dumps:/tmp/dumps
+    environment:
+      - MYSQL_DATABASE=pos
+      - MYSQL_PASSWORD=admin123
+      - MYSQL_ROOT_PASSWORD=admin123
+    ports:
+      - '3366:3306'
+    hostname: spos-mysql
+    container_name: spos-mysql
+    networks:
+      - spos
+
+  spos-nginx:
+    image: nginx:latest
+    restart: always
+    volumes:
+      - ./spos-nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./spos-nginx/error_log.log:/etc/nginx/error_log.log
+      - ./spos-nginx/cache/:/etc/nginx/cache
+    env_file:
+      - ./spos-nginx/nginx.env
+    ports:
+      - '80:80'
+      - '443:443'
+    expose:
+      - '80'
+      - '443'
+    hostname: spos-nginx
+    container_name: spos-nginx
+    networks:
+      - spos
+
+
+  spos-mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: always
+    cap_add:
+      - ALL
+    environment:
+      - SA_PASSWORD=admin123
+      - ACCEPT_EULA=Y
+    ports:
+      - '9050:1433'
+    volumes:
+      - ./spos-mssql/data:/var/opt/mssql/data
+      - ./spos-mssql/backup:/var/opt/mssql/backup
+    hostname: spos-mssql
+    container_name: spos-mssql
+    networks:
+      - spos
+
+
+
+#  redis-single:
+#    image: bitnami/redis:6.0.16
+#    environment:
+#      - REDIS_PASSWORD=admin123
+#      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+#    ports:
+#      - 6379:6379
+#    volumes:
+#      - ./redis/single:/bitnami/redis/data
+#    hostname: redis-single
+#    container_name: redis-single
+#    networks:
+#      - spos
+
+#  redis-cluster-0:
+#    image: bitnami/redis-cluster:6.2.6
+#    environment:
+#      - REDIS_PASSWORD=admin123
+#      - REDIS_NODES=redis-cluster-0 redis-cluster-1 redis-cluster-2 redis-cluster-3 redis-cluster-4 redis-cluster-5
+#    ports:
+#      - 6370:6379
+#    volumes:
+#      - redis-cluster-data-0:/bitnami/redis/data
+#    hostname: redis-cluster-0
+#    container_name: redis-cluster-0
+#    networks:
+#      - spos
+#
+#  redis-cluster-1:
+#    image: bitnami/redis-cluster:6.2.6
+#    environment:
+#      - REDIS_PASSWORD=admin123
+#      - REDIS_NODES=redis-cluster-0 redis-cluster-1 redis-cluster-2 redis-cluster-3 redis-cluster-4 redis-cluster-5
+#    ports:
+#      - 6371:6379
+#    volumes:
+#      - redis-cluster-data-1:/bitnami/redis/data
+#    hostname: redis-cluster-1
+#    container_name: redis-cluster-1
+#    networks:
+#      - spos
+#
+#  redis-cluster-2:
+#    image: bitnami/redis-cluster:6.2.6
+#    environment:
+#      - REDIS_PASSWORD=admin123
+#      - REDIS_NODES=redis-cluster-0 redis-cluster-1 redis-cluster-2 redis-cluster-3 redis-cluster-4 redis-cluster-5
+#    ports:
+#      - 6372:6379
+#    volumes:
+#      - redis-cluster-data-2:/bitnami/redis/data
+#    hostname: redis-cluster-2
+#    container_name: redis-cluster-2
+#    networks:
+#      - spos
+#
+#  redis-cluster-3:
+#    image: bitnami/redis-cluster:6.2.6
+#    environment:
+#      - REDIS_PASSWORD=admin123
+#      - REDIS_NODES=redis-cluster-0 redis-cluster-1 redis-cluster-2 redis-cluster-3 redis-cluster-4 redis-cluster-5
+#    ports:
+#      - 6373:6379
+#    volumes:
+#      - redis-cluster-data-3:/bitnami/redis/data
+#    hostname: redis-cluster-3
+#    container_name: redis-cluster-3
+#    networks:
+#      - spos
+#
+#  redis-cluster-4:
+#    image: bitnami/redis-cluster:6.2.6
+#    environment:
+#      - REDIS_PASSWORD=admin123
+#      - REDIS_NODES=redis-cluster-0 redis-cluster-1 redis-cluster-2 redis-cluster-3 redis-cluster-4 redis-cluster-5
+#    ports:
+#      - 6374:6379
+#    volumes:
+#      - redis-cluster-data-4:/bitnami/redis/data
+#    hostname: redis-cluster-4
+#    container_name: redis-cluster-4
+#    networks:
+#      - spos
+#
+#  redis-cluster-5:
+#    image: bitnami/redis-cluster:6.2.6
+#    environment:
+#      - REDIS_PASSWORD=admin123
+#      - REDISCLI_AUTH=admin123
+#      - REDIS_CLUSTER_REPLICAS=1
+#      - REDIS_NODES=redis-cluster-0 redis-cluster-1 redis-cluster-2 redis-cluster-3 redis-cluster-4 redis-cluster-5
+#      - REDIS_CLUSTER_CREATOR=yes
+#    ports:
+#      - 6375:6379
+#    volumes:
+#      - redis-cluster-data-5:/bitnami/redis/data
+#    depends_on:
+#      - redis-cluster-0
+#      - redis-cluster-1
+#      - redis-cluster-2
+#      - redis-cluster-3
+#      - redis-cluster-4
+#    hostname: redis-cluster-5
+#    container_name: redis-cluster-5
+#    networks:
+#      - spos
+#
+#volumes:
+#  redis-cluster-data-0:
+#    driver: local
+#  redis-cluster-data-1:
+#    driver: local
+#  redis-cluster-data-2:
+#    driver: local
+#  redis-cluster-data-3:
+#    driver: local
+#  redis-cluster-data-4:
+#    driver: local
+#  redis-cluster-data-5:
+#    driver: local
+
+networks:
+  spos:
+    driver: bridge
