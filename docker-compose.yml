@@ -45,6 +45,7 @@ services:
 
   spos-mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    user: root
     restart: always
     cap_add:
       - ALL
